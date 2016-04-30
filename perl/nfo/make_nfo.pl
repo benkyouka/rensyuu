@@ -126,6 +126,7 @@ sub regex_clean_basename {
   $name =~ s/[._\-\[]+720p\]*//i;
   $name =~ s/[._\-\[]+1080p\]*//i;
   $name =~ s/^dioguitar23.net_//i;
+  $name =~ s/^IKUJAV\.COM-//i;
   $name =~ s/[._\-\[]+FHD\]*//i;
   $name =~ s/[._\-\[]+HD\]*//i;
   $suffix ? "$name$suffix" : $name;
@@ -145,6 +146,7 @@ sub clean_up_file_names {
     next if $file eq $newfilename;
     next if -s $newfilename;
     next if -d $newfilename;
+#    print "file:[$file],new:[$newfilename]","\n";
     mv $file, $newfilename;
  }
   closedir $dh;
@@ -198,14 +200,29 @@ sub do_movie_based_on_filename {
   }
 }
 
+sub make_dirs_for_solitary_files {
+  my @videos = get_video_files();
+  for my $vid (@videos) {
+    my ($name,$path,$suffix) = fileparse($vid, qr/\.\w{3}$/);
+    next if -d $name;
+    $name = uc $name;
+    next if -d $name;
+    mkdir $name;
+    mv $vid,$name;
+  }
+}
+
 
 
 unlink_dat_files();
 clean_up_file_names();
+make_dirs_for_solitary_files();
 
 opendir (my $topdh, ".");
 my @dirs = grep { !/^\./ && -d } readdir $topdh;
 closedir $topdh;
+
+
 
 for my $dir (@dirs) {
   chdir $dir;
